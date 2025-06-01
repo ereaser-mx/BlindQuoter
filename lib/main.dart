@@ -44,24 +44,26 @@ class HomeScreen extends StatelessWidget {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
 
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            MenuButton(
-              icon: Icons.calculate,
-              label: "Cotizar",
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => CotizarScreen()),
-                );
-              },
-            ),
-            SizedBox(height: 20),
-            MenuButton(icon: Icons.contacts, label: "Clientes"),
-            SizedBox(height: 20),
-            MenuButton(icon: Icons.warehouse, label: "Pedidos"),
-          ],
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              MenuButton(
+                icon: Icons.calculate,
+                label: "Cotizar",
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => CotizarScreen()),
+                  );
+                },
+              ),
+              SizedBox(height: 20),
+              MenuButton(icon: Icons.contacts, label: "Clientes"),
+              SizedBox(height: 20),
+              MenuButton(icon: Icons.warehouse, label: "Pedidos"),
+            ],
+          ),
         ),
       ),
     );
