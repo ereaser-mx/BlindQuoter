@@ -4,13 +4,6 @@ import 'package:printing/printing.dart';
 
 void main() => runApp(HomDecoApp());
 
-// This is a simple Flutter application that serves as a home screen for a
-// home decoration app called "HOMDECO". It includes a navigation drawer, a
-// menu with options to quote, view clients, and orders, and a screen for
-// calculating quotes for window coverings. The quote screen allows users to
-// input dimensions, select fabric types, and control options, and generates
-// a PDF with the quote details. The app uses the `pdf` and `printing` packages
-// to create and print the PDF documents.
 class HomDecoApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -23,9 +16,6 @@ class HomDecoApp extends StatelessWidget {
   }
 }
 
-// HomeScreen is the main screen of the application, displaying a menu with
-// options to quote, view clients, and orders. It also includes a navigation
-// drawer and a custom AppBar with a title and an "Inicio" button.
 class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -44,6 +34,7 @@ class HomeScreen extends StatelessWidget {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
 
+        //Botones
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -70,10 +61,6 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-// MenuButton is a custom widget that represents a button in the menu with an
-// icon and a label. It uses a GestureDetector to handle taps and displays
-// a Card with an icon and text. The button can be customized with an icon,
-// label, and an optional onTap callback.
 class MenuButton extends StatelessWidget {
   final IconData icon;
   final String label;
@@ -81,6 +68,7 @@ class MenuButton extends StatelessWidget {
 
   MenuButton({required this.icon, required this.label, this.onTap});
 
+  //Creador del botón del menú
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -102,14 +90,7 @@ class MenuButton extends StatelessWidget {
   }
 }
 
-// CotizarScreen is a StatefulWidget that allows users to input dimensions
-// and select fabric types for window coverings. It calculates the cost based
-// on the input values and generates a PDF with the quote details. The screen
-// includes text fields for width and height, a dropdown for fabric selection,
-// radio buttons for control options, and buttons to add the quote and generate
-// the PDF. The quotes are displayed in a DataTable format, and the PDF is
-// generated using the `pdf` and `printing` packages.
-
+// Pantalla de cotización
 class CotizarScreen extends StatefulWidget {
   @override
   _CotizarScreenState createState() => _CotizarScreenState();
@@ -123,6 +104,7 @@ class _CotizarScreenState extends State<CotizarScreen> {
 
   List<Map<String, dynamic>> pedidos = [];
 
+  //Metodo para calcular el precio por metro cuadrado según la tela
   double calcularPrecioM2(String tela) {
     switch (tela) {
       case 'Woodline':
@@ -156,6 +138,7 @@ class _CotizarScreenState extends State<CotizarScreen> {
     });
   }
 
+  //Modulo para generar el PDF
   void generarPDF() async {
     final pdf = pw.Document();
 
@@ -209,6 +192,7 @@ class _CotizarScreenState extends State<CotizarScreen> {
     await Printing.layoutPdf(onLayout: (format) => pdf.save());
   }
 
+  // Construcción de la pantalla de cotización
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -216,6 +200,8 @@ class _CotizarScreenState extends State<CotizarScreen> {
         backgroundColor: Colors.indigo,
         title: Text("Cotizador", style: TextStyle(color: Colors.white)),
       ),
+
+      // Contenido de la pantalla
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -267,14 +253,32 @@ class _CotizarScreenState extends State<CotizarScreen> {
             ),
             Row(
               children: [
+                // Botones para agregar pedido y generar PDF
                 ElevatedButton(
-                  onPressed: agregarPedido,
+                  // Botón para agregar pedido y limpiar los campos
+                  onPressed: () {
+                    agregarPedido();
+                    anchoController.clear();
+                    altoController.clear();
+                    control = 'Izquierdo';
+                  },
                   child: Text("Agregar"),
                 ),
                 SizedBox(width: 16),
+                // Botón para generar PDF
                 ElevatedButton(
                   onPressed: pedidos.isEmpty ? null : generarPDF,
                   child: Text("Generar PDF"),
+                ),
+                // Botón para limpiar la lista de pedidos
+                SizedBox(width: 16),
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      pedidos.clear();
+                    });
+                  },
+                  child: Text("X"),
                 ),
               ],
             ),
@@ -285,6 +289,8 @@ class _CotizarScreenState extends State<CotizarScreen> {
             ),
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
+
+              // Tabla de pedidos
               child: DataTable(
                 columns: [
                   DataColumn(label: Text("Descripción")),
