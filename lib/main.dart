@@ -125,12 +125,12 @@ class _CotizarScreenState extends State<CotizarScreen> {
 
   double calcularPrecioM2(String tela) {
     switch (tela) {
-      case 'Screen':
+      case 'Woodline':
         return 750;
       case 'Blackout':
         return 700;
-      case 'Woodline':
-        return 750;
+      case 'Dimmout':
+        return 950;
       default:
         return 200;
     }
@@ -212,7 +212,10 @@ class _CotizarScreenState extends State<CotizarScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Cotizador")),
+      appBar: AppBar(
+        backgroundColor: Colors.indigo,
+        title: Text("Cotizador", style: TextStyle(color: Colors.white)),
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -236,7 +239,7 @@ class _CotizarScreenState extends State<CotizarScreen> {
               value: tela,
               hint: Text("Tela"),
               items:
-                  ['Screen', 'Blackout', 'Woodline']
+                  ['Woodline', 'Blackout', 'Dimmout']
                       .map((e) => DropdownMenuItem(value: e, child: Text(e)))
                       .toList(),
               onChanged: (value) => setState(() => tela = value!),
@@ -280,28 +283,31 @@ class _CotizarScreenState extends State<CotizarScreen> {
               "Pedido",
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            DataTable(
-              columns: [
-                DataColumn(label: Text("Descripción")),
-                DataColumn(label: Text("Ancho (m)")),
-                DataColumn(label: Text("Alto (m)")),
-                DataColumn(label: Text("\$/m2")),
-                DataColumn(label: Text("Costo (\$)")),
-              ],
-              rows:
-                  pedidos
-                      .map(
-                        (p) => DataRow(
-                          cells: [
-                            DataCell(Text(p['descripcion'])),
-                            DataCell(Text(p['ancho'])),
-                            DataCell(Text(p['alto'])),
-                            DataCell(Text(p['precio'].toString())),
-                            DataCell(Text(p['costo'])),
-                          ],
-                        ),
-                      )
-                      .toList(),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: DataTable(
+                columns: [
+                  DataColumn(label: Text("Descripción")),
+                  DataColumn(label: Text("Ancho (m)")),
+                  DataColumn(label: Text("Alto (m)")),
+                  DataColumn(label: Text("\$/m2")),
+                  DataColumn(label: Text("Costo (\$)")),
+                ],
+                rows:
+                    pedidos
+                        .map(
+                          (p) => DataRow(
+                            cells: [
+                              DataCell(Text(p['descripcion'])),
+                              DataCell(Text(p['ancho'].toString())),
+                              DataCell(Text(p['alto'].toString())),
+                              DataCell(Text(p['precio'].toString())),
+                              DataCell(Text(p['costo'])),
+                            ],
+                          ),
+                        )
+                        .toList(),
+              ),
             ),
           ],
         ),
