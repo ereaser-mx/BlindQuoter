@@ -1,122 +1,309 @@
 import 'package:flutter/material.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:printing/printing.dart';
 
-void main() {
-  runApp(const MyApp());
-}
+void main() => runApp(HomDecoApp());
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  // This widget is the root of your application.
+// This is a simple Flutter application that serves as a home screen for a
+// home decoration app called "HOMDECO". It includes a navigation drawer, a
+// menu with options to quote, view clients, and orders, and a screen for
+// calculating quotes for window coverings. The quote screen allows users to
+// input dimensions, select fabric types, and control options, and generates
+// a PDF with the quote details. The app uses the `pdf` and `printing` packages
+// to create and print the PDF documents.
+class HomDecoApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-      ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      debugShowCheckedModeBanner: false,
+      title: 'HOMDECO',
+      theme: ThemeData(primarySwatch: Colors.indigo),
+      home: HomeScreen(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
-
+// HomeScreen is the main screen of the application, displaying a menu with
+// options to quote, view clients, and orders. It also includes a navigation
+// drawer and a custom AppBar with a title and an "Inicio" button.
+class HomeScreen extends StatelessWidget {
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.indigo,
+        title: Text('HOMDECO', style: TextStyle(color: Colors.white)),
+        actions: [
+          TextButton(
+            onPressed: () {},
+            child: Text("Inicio", style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+      drawer: Drawer(),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            MenuButton(
+              icon: Icons.calculate,
+              label: "Cotizar",
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => CotizarScreen()),
+                );
+              },
+            ),
+            SizedBox(height: 20),
+            MenuButton(icon: Icons.contacts, label: "Clientes"),
+            SizedBox(height: 20),
+            MenuButton(icon: Icons.warehouse, label: "Pedidos"),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+// MenuButton is a custom widget that represents a button in the menu with an
+// icon and a label. It uses a GestureDetector to handle taps and displays
+// a Card with an icon and text. The button can be customized with an icon,
+// label, and an optional onTap callback.
+class MenuButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback? onTap;
 
-  void _incrementCounter() {
+  MenuButton({required this.icon, required this.label, this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Card(
+        elevation: 4,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 50),
+          child: Column(
+            children: [
+              Icon(icon, size: 40),
+              SizedBox(height: 10),
+              Text(label, style: TextStyle(fontSize: 16)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// CotizarScreen is a StatefulWidget that allows users to input dimensions
+// and select fabric types for window coverings. It calculates the cost based
+// on the input values and generates a PDF with the quote details. The screen
+// includes text fields for width and height, a dropdown for fabric selection,
+// radio buttons for control options, and buttons to add the quote and generate
+// the PDF. The quotes are displayed in a DataTable format, and the PDF is
+// generated using the `pdf` and `printing` packages.
+
+class CotizarScreen extends StatefulWidget {
+  @override
+  _CotizarScreenState createState() => _CotizarScreenState();
+}
+
+class _CotizarScreenState extends State<CotizarScreen> {
+  final anchoController = TextEditingController();
+  final altoController = TextEditingController();
+  String? tela;
+  String control = 'Izquierdo';
+
+  List<Map<String, dynamic>> pedidos = [];
+
+  double calcularPrecioM2(String tela) {
+    switch (tela) {
+      case 'Screen':
+        return 750;
+      case 'Blackout':
+        return 700;
+      case 'Woodline':
+        return 750;
+      default:
+        return 200;
+    }
+  }
+
+  void agregarPedido() {
+    final ancho = double.tryParse(anchoController.text);
+    final alto = double.tryParse(altoController.text);
+    if (ancho == null || alto == null || tela == null) return;
+
+    final area = ancho * alto;
+    final precioM2 = calcularPrecioM2(tela!);
+    final costo = area * precioM2;
+
     setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
+      pedidos.add({
+        'descripcion': '$tela ($control)',
+        'precio': precioM2,
+        'costo': costo.toStringAsFixed(2),
+        'ancho': ancho.toStringAsFixed(2),
+        'alto': alto.toStringAsFixed(2),
+      });
     });
+  }
+
+  void generarPDF() async {
+    final pdf = pw.Document();
+
+    double total = pedidos.fold(0, (sum, p) => sum + double.parse(p['costo']));
+
+    pdf.addPage(
+      pw.Page(
+        build:
+            (context) => pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                pw.Text(
+                  'Cotización de Persianas',
+                  style: pw.TextStyle(
+                    fontSize: 20,
+                    fontWeight: pw.FontWeight.bold,
+                  ),
+                ),
+                pw.SizedBox(height: 20),
+                pw.Table.fromTextArray(
+                  headers: [
+                    'Descripción',
+                    'Ancho (m)',
+                    'Alto (m)',
+                    '\$/m2',
+                    'Costo (\$)',
+                  ],
+                  data:
+                      pedidos
+                          .map(
+                            (p) => [
+                              p['descripcion'],
+                              p['ancho'],
+                              p['alto'],
+                              p['precio'].toString(),
+                              p['costo'],
+                            ],
+                          )
+                          .toList(),
+                ),
+                pw.SizedBox(height: 20),
+                pw.Text(
+                  'Total: \$${total.toStringAsFixed(2)}',
+                  style: pw.TextStyle(fontSize: 18),
+                ),
+              ],
+            ),
+      ),
+    );
+
+    await Printing.layoutPdf(onLayout: (format) => pdf.save());
   }
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
-      appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
+      appBar: AppBar(title: Text("Cotizador")),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
         child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text('You have pushed the button this many times:'),
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
             Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
+              "Datos",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            TextField(
+              controller: anchoController,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(labelText: 'Ancho (m)'),
+            ),
+            TextField(
+              controller: altoController,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(labelText: 'Alto (m)'),
+            ),
+            DropdownButton<String>(
+              value: tela,
+              hint: Text("Tela"),
+              items:
+                  ['Screen', 'Blackout', 'Woodline']
+                      .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+                      .toList(),
+              onChanged: (value) => setState(() => tela = value!),
+            ),
+            Row(
+              children: [
+                Text("Control: "),
+                Row(
+                  children: [
+                    Radio(
+                      value: 'Izquierdo',
+                      groupValue: control,
+                      onChanged: (value) => setState(() => control = value!),
+                    ),
+                    Text("Izquierdo"),
+                    Radio(
+                      value: 'Derecho',
+                      groupValue: control,
+                      onChanged: (value) => setState(() => control = value!),
+                    ),
+                    Text("Derecho"),
+                  ],
+                ),
+              ],
+            ),
+            Row(
+              children: [
+                ElevatedButton(
+                  onPressed: agregarPedido,
+                  child: Text("Agregar"),
+                ),
+                SizedBox(width: 16),
+                ElevatedButton(
+                  onPressed: pedidos.isEmpty ? null : generarPDF,
+                  child: Text("Generar PDF"),
+                ),
+              ],
+            ),
+            SizedBox(height: 20),
+            Text(
+              "Pedido",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            DataTable(
+              columns: [
+                DataColumn(label: Text("Descripción")),
+                DataColumn(label: Text("Ancho (m)")),
+                DataColumn(label: Text("Alto (m)")),
+                DataColumn(label: Text("\$/m2")),
+                DataColumn(label: Text("Costo (\$)")),
+              ],
+              rows:
+                  pedidos
+                      .map(
+                        (p) => DataRow(
+                          cells: [
+                            DataCell(Text(p['descripcion'])),
+                            DataCell(Text(p['ancho'])),
+                            DataCell(Text(p['alto'])),
+                            DataCell(Text(p['precio'].toString())),
+                            DataCell(Text(p['costo'])),
+                          ],
+                        ),
+                      )
+                      .toList(),
             ),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }
