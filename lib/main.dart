@@ -141,6 +141,7 @@ class _CotizarScreenState extends State<CotizarScreen> {
   //Modulo para generar el PDF
   void generarPDF() async {
     final pdf = pw.Document();
+    final now = DateTime.now();
 
     double total = pedidos.fold(0, (sum, p) => sum + double.parse(p['costo']));
 
@@ -151,7 +152,17 @@ class _CotizarScreenState extends State<CotizarScreen> {
               crossAxisAlignment: pw.CrossAxisAlignment.start,
               children: [
                 pw.Text(
-                  'Cotización de Persianas',
+                  'Homdeco',
+                  style: pw.TextStyle(
+                    fontSize: 20,
+                    fontWeight: pw.FontWeight.bold,
+                  ),
+                ),
+                pw.Text(
+                  'Fecha: ${now.day}/${now.month}/${now.year} ${now.hour}:${now.minute.toString().padLeft(2, '0')}',
+                ),
+                pw.Text(
+                  'Pedido:',
                   style: pw.TextStyle(
                     fontSize: 20,
                     fontWeight: pw.FontWeight.bold,
@@ -171,8 +182,8 @@ class _CotizarScreenState extends State<CotizarScreen> {
                           .map(
                             (p) => [
                               p['descripcion'],
-                              p['ancho'],
-                              p['alto'],
+                              p['ancho'].toString(),
+                              p['alto'].toString(),
                               p['precio'].toString(),
                               p['costo'],
                             ],
