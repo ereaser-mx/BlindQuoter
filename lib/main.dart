@@ -17,6 +17,25 @@ class HomDecoApp extends StatelessWidget {
 }
 
 class HomeScreen extends StatelessWidget {
+  //Alerta para mostrar que una función está en desarrollo
+  void showEnDesarrollo(BuildContext context) {
+    showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: Text("En desarrollo"),
+            content: Text("Esta función aún está en desarrollo."),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text("OK"),
+              ),
+            ],
+          ),
+    );
+  }
+
+  //Pantalla principal de la aplicación
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -50,9 +69,17 @@ class HomeScreen extends StatelessWidget {
                 },
               ),
               SizedBox(height: 20),
-              MenuButton(icon: Icons.contacts, label: "Clientes"),
+              MenuButton(
+                icon: Icons.contacts,
+                label: "Clientes",
+                onTap: () => showEnDesarrollo(context),
+              ),
               SizedBox(height: 20),
-              MenuButton(icon: Icons.warehouse, label: "Pedidos"),
+              MenuButton(
+                icon: Icons.warehouse,
+                label: "Pedidos",
+                onTap: () => showEnDesarrollo(context),
+              ),
             ],
           ),
         ),
